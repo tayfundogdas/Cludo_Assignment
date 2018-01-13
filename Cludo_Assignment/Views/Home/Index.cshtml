@@ -1,0 +1,56 @@
+﻿@model Cludo_Assignment.Models.TwitterSearch
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#HashTag").val("");
+        $("#Filter").val("");
+
+        $("#btnSave").click(function (event) {
+            event.preventDefault();
+            var selectedValues = [];
+            $("input:checked").each(function () {
+                selectedValues.push($(this).attr('id'));
+            });
+
+            $.post("@(Url.Action("SaveSelected", "Home",null, Request.Url.Scheme))", { selectedIds: selectedValues }, function (data) {
+                $("#divSaveResult").text("Save items result : " + (data.success ? "OK" : "NOK"));
+            });
+        });
+    });
+</script>
+
+<div class="row">
+
+    <form action="@Url.Action("Index", "Home")" id="form" method="post">
+        @Html.AntiForgeryToken()
+
+        @Html.Label("HashTag")
+        @Html.TextBoxFor(m => m.HashTag, new { @class = "form-control" })
+
+        @Html.Label("Filter")
+        @Html.TextBoxFor(m => m.Filter, new { @class = "form-control" })
+
+        <input type="submit" name="search" value="Search" id="btnSearch" />
+    </form>
+
+    <input type="submit" name="search" value="Save selected items" id="btnSave" />
+    <div id="divSaveResult" />
+
+    @if (Model.TwitterResult != null)
+    {
+        if (Model.TwitterResult.Count == 0)
+        {
+            <div>No data to display</div>
+        }
+
+        foreach (var result in Model.TwitterResult)
+        {
+            <div><input type="checkbox" id="@result.Key" />  @result.Value</div><br />
+        }
+    }
+
+
+</div>
